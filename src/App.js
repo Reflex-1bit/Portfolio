@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Terminal, Zap } from 'lucide-react';
+import { ArrowRight, Terminal, Zap, X } from 'lucide-react';
 
-const ProjectGameView = ({ projects, onHoverChange }) => {
+const ProjectGameView = ({ projects }) => {
   const canvasRef = useRef(null);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [activePopup, setActivePopup] = useState(null);
+  const [allCollected, setAllCollected] = useState(false);
   const [score, setScore] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const keysRef = useRef({});
   const scoreRef = useRef(0);
-  const selectedProjectRef = useRef(null);
+  const collectedProjectsRef = useRef([]);
   
   useEffect(() => {
     const checkMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -21,9 +22,8 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
     
     const ctx = canvas.getContext('2d');
     canvas.width = canvas.offsetWidth;
-    canvas.height = 600;
+    canvas.height = 400;
     
-    // Game objects
     const player = {
       x: 50,
       y: canvas.height - 100,
@@ -78,7 +78,6 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
       ctx.save();
       ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
       
-      // Glow effect
       const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, player.width);
       gradient.addColorStop(0, 'rgba(139, 92, 246, 0.8)');
       gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.4)');
@@ -86,13 +85,11 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
       ctx.fillStyle = gradient;
       ctx.fillRect(-player.width, -player.height, player.width * 2, player.height * 2);
       
-      // Player body
       ctx.fillStyle = player.color;
       ctx.shadowBlur = 20;
       ctx.shadowColor = '#8b5cf6';
       ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
       
-      // Eyes
       ctx.fillStyle = '#000';
       ctx.fillRect(-10, -10, 8, 8);
       ctx.fillRect(2, -10, 8, 8);
@@ -109,32 +106,27 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
       box.float += 0.05;
       const floatOffset = Math.sin(box.float) * 10;
       
-      // Outer glow
       ctx.shadowBlur = 30;
       ctx.shadowColor = '#a78bfa';
       
-      // Box
       ctx.fillStyle = 'rgba(139, 92, 246, 0.2)';
       ctx.strokeStyle = '#8b5cf6';
       ctx.lineWidth = 3;
       ctx.fillRect(0, floatOffset, box.width, box.height);
       ctx.strokeRect(0, floatOffset, box.width, box.height);
       
-      // Inner shine
       const gradient = ctx.createLinearGradient(0, floatOffset, 0, floatOffset + box.height);
       gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
       gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, floatOffset, box.width, box.height);
       
-      // Project icon
       ctx.font = '48px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#fff';
       ctx.fillText(['🚀', '⚡', '🎯'][projects.indexOf(box.project)], box.width / 2, box.height / 2 + floatOffset);
       
-      // Particles
       box.particles = box.particles.filter(p => p.life > 0);
       if (Math.random() < 0.1) {
         box.particles.push({
@@ -173,7 +165,6 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
       ctx.fillStyle = '#1a1a1a';
       ctx.fillRect(0, groundY, canvas.width, 50);
       
-      // Ground line
       ctx.strokeStyle = '#8b5cf6';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -181,7 +172,6 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
       ctx.lineTo(canvas.width, groundY);
       ctx.stroke();
       
-      // Grid lines
       ctx.strokeStyle = 'rgba(139, 92, 246, 0.2)';
       ctx.lineWidth = 1;
       for (let i = 0; i < canvas.width; i += 40) {
@@ -202,14 +192,11 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
     }
     
     function update() {
-      // Clear canvas
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw stars
       drawStars();
       
-      // Player movement
       if (keysRef.current['ArrowRight'] || keysRef.current['d']) {
         scrollOffset += 5;
       }
@@ -217,11 +204,9 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
         scrollOffset = Math.max(0, scrollOffset - 5);
       }
       
-      // Gravity
       player.velocityY += 0.8;
       player.y += player.velocityY;
       
-      // Ground collision
       const groundY = canvas.height - 50 - player.height;
       if (player.y >= groundY) {
         player.y = groundY;
@@ -229,20 +214,23 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
         player.jumping = false;
       }
       
-      // Draw ground
       drawGround();
       
-      // Draw and check project boxes
       projectBoxes.forEach(box => {
         drawProjectBox(box);
         if (!box.collected && checkCollision(box)) {
           box.collected = true;
           scoreRef.current += 1;
           setScore(scoreRef.current);
-          selectedProjectRef.current = box.project;
-          setSelectedProject(box.project);
+          collectedProjectsRef.current.push(box.project);
+          setActivePopup(box.project);
           
-          // Explosion effect
+          if (scoreRef.current === projects.length) {
+            setTimeout(() => {
+              setAllCollected(true);
+            }, 2000);
+          }
+          
           for (let i = 0; i < 30; i++) {
             box.particles.push({
               x: box.width / 2,
@@ -256,10 +244,8 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
         }
       });
       
-      // Draw player
       drawPlayer();
       
-      // UI
       ctx.fillStyle = '#fff';
       ctx.font = '20px monospace';
       ctx.fillText(`COLLECTED: ${scoreRef.current}/${projects.length}`, 20, 30);
@@ -285,81 +271,120 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
   
   return (
     <div className="relative">
-      <canvas 
-        ref={canvasRef} 
-        className="w-full border-2 border-violet-500 bg-black"
-        style={{ imageRendering: 'pixelated', touchAction: 'none' }}
-      />
-      
-      {/* Mobile Touch Controls */}
-      {isMobile && (
-        <div className="mt-4 flex justify-between items-center gap-4">
-          <div className="flex gap-2">
-            <button
-              onTouchStart={() => handleTouchButton('a', true)}
-              onTouchEnd={() => handleTouchButton('a', false)}
-              className="w-16 h-16 bg-violet-500/30 border-2 border-violet-500 flex items-center justify-center text-white font-bold text-2xl active:bg-violet-500/50 select-none"
-            >
-              ←
-            </button>
-            <button
-              onTouchStart={() => handleTouchButton('d', true)}
-              onTouchEnd={() => handleTouchButton('d', false)}
-              className="w-16 h-16 bg-violet-500/30 border-2 border-violet-500 flex items-center justify-center text-white font-bold text-2xl active:bg-violet-500/50 select-none"
-            >
-              →
-            </button>
-          </div>
+      {!allCollected ? (
+        <>
+          <canvas 
+            ref={canvasRef} 
+            className="w-full border-2 border-violet-500 bg-black"
+            style={{ imageRendering: 'pixelated', touchAction: 'none' }}
+          />
           
-          <button
-            onTouchStart={() => handleTouchButton(' ', true)}
-            onTouchEnd={() => handleTouchButton(' ', false)}
-            className="w-20 h-20 rounded-full bg-violet-500/30 border-4 border-violet-500 flex items-center justify-center text-white font-bold active:bg-violet-500/50 select-none"
-          >
-            JUMP
-          </button>
+          {isMobile && (
+            <div className="mt-4 flex justify-between items-center gap-4">
+              <div className="flex gap-2">
+                <button
+                  onTouchStart={() => handleTouchButton('a', true)}
+                  onTouchEnd={() => handleTouchButton('a', false)}
+                  className="w-16 h-16 bg-violet-500/30 border-2 border-violet-500 flex items-center justify-center text-white font-bold text-2xl active:bg-violet-500/50 select-none"
+                >
+                  ←
+                </button>
+                <button
+                  onTouchStart={() => handleTouchButton('d', true)}
+                  onTouchEnd={() => handleTouchButton('d', false)}
+                  className="w-16 h-16 bg-violet-500/30 border-2 border-violet-500 flex items-center justify-center text-white font-bold text-2xl active:bg-violet-500/50 select-none"
+                >
+                  →
+                </button>
+              </div>
+              
+              <button
+                onTouchStart={() => handleTouchButton(' ', true)}
+                onTouchEnd={() => handleTouchButton(' ', false)}
+                className="w-20 h-20 rounded-full bg-violet-500/30 border-4 border-violet-500 flex items-center justify-center text-white font-bold active:bg-violet-500/50 select-none"
+              >
+                JUMP
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="animate-fadeIn">
+          <div className="text-center mb-12">
+            <h3 className="text-4xl font-bold text-violet-400 mb-4">🎉 ALL PROJECTS COLLECTED!</h3>
+            <p className="text-gray-400 text-lg">here's what i've built</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {collectedProjectsRef.current.map((project, i) => (
+              <div
+                key={i}
+                className="border-2 border-violet-500 bg-zinc-900 p-6 hover:border-violet-400 transition-all"
+              >
+                <div className="text-4xl mb-4">{['🚀', '⚡', '🎯'][i]}</div>
+                <h3 className="text-2xl font-bold text-white mb-3">{project.title}</h3>
+                <p className="text-gray-400 mb-4">{project.desc}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {project.tech.split(', ').map((tech, j) => (
+                    <span key={j} className="text-xs px-2 py-1 bg-zinc-800 text-violet-400 border border-zinc-700">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-violet-400">
+                  <Zap className="w-4 h-4" />
+                  {project.impact}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       
-      {selectedProject && (
-        <div className="mt-8 border-2 border-violet-500 bg-zinc-900 p-8 animate-slideUp">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <div className="text-sm text-violet-400 mb-2">✨ PROJECT UNLOCKED!</div>
-              <h3 className="text-3xl font-bold text-white mb-2">{selectedProject.title}</h3>
-              <p className="text-gray-400 text-lg">{selectedProject.desc}</p>
-            </div>
-            <span className="text-sm px-3 py-1 bg-violet-500/20 text-violet-400 border border-violet-500">
-              {selectedProject.year}
-            </span>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h4 className="text-sm text-gray-500 mb-2">TECH STACK</h4>
-              <div className="flex flex-wrap gap-2">
-                {selectedProject.tech.split(', ').map((tech, j) => (
-                  <span key={j} className="text-sm px-3 py-1 bg-zinc-800 text-violet-400 border border-zinc-700">
-                    {tech}
-                  </span>
-                ))}
+      {activePopup && !allCollected && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActivePopup(null)}>
+          <div className="bg-zinc-900 border-2 border-violet-500 p-8 max-w-2xl w-full mx-4 relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setActivePopup(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="text-sm text-violet-400 mb-3">✨ PROJECT UNLOCKED!</div>
+            <h3 className="text-3xl font-bold text-white mb-3">{activePopup.title}</h3>
+            <p className="text-gray-400 text-lg mb-6">{activePopup.desc}</p>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h4 className="text-sm text-gray-500 mb-3">TECH STACK</h4>
+                <div className="flex flex-wrap gap-2">
+                  {activePopup.tech.split(', ').map((tech, j) => (
+                    <span key={j} className="text-sm px-3 py-1 bg-zinc-800 text-violet-400 border border-zinc-700">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm text-gray-500 mb-3">IMPACT</h4>
+                <div className="flex items-center gap-2 text-lg">
+                  <Zap className="w-5 h-5 text-violet-400" />
+                  <span className="text-violet-400 font-bold">{activePopup.impact}</span>
+                </div>
               </div>
             </div>
-            <div>
-              <h4 className="text-sm text-gray-500 mb-2">IMPACT</h4>
-              <div className="flex items-center gap-2 text-lg">
-                <Zap className="w-5 h-5 text-violet-400" />
-                <span className="text-violet-400 font-bold">{selectedProject.impact}</span>
-              </div>
-            </div>
+            
+            <button
+              onClick={() => setActivePopup(null)}
+              className="w-full px-6 py-3 bg-violet-600 hover:bg-violet-500 transition-colors font-bold"
+            >
+              CONTINUE PLAYING →
+            </button>
           </div>
-
-
         </div>
       )}
 
       <style jsx>{`
-        @keyframes slideUp {
+        @keyframes fadeIn {
           from {
             opacity: 0;
             transform: translateY(20px);
@@ -369,8 +394,8 @@ const ProjectGameView = ({ projects, onHoverChange }) => {
             transform: translateY(0);
           }
         }
-        .animate-slideUp {
-          animation: slideUp 0.4s ease-out;
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-out;
         }
       `}</style>
     </div>
@@ -475,29 +500,29 @@ export default function Portfolio() {
   const projects = [
     {
       title: "chess trainer ai",
-      desc: "neural network that analyzes your chess.com games, finds your weaknesses, and serves personalized puzzles from lichess",
+      desc: "neural network that analyzes your chess.com games via API, identifies tactical weaknesses, and serves personalized training patterns",
       tech: "python, tensorflow, javascript",
       impact: "trained on 10k+ games",
       year: "2025"
     },
     {
       title: "discord housing pipeline",
-      desc: "automated data pipeline that scrapes, cleans, and monitors housing listings with real-time alerts",
+      desc: "automated data pipeline that scrapes, cleans, and monitors housing listings with real-time alerts and persistence",
       tech: "python, mysql",
       impact: "tracking 5k+ listings",
       year: "2025"
     },
     {
-      title: "finance tracker",
-      desc: "personal finance app with auto-categorization and spending analytics dashboard",
-      tech: "python, javascript, mysql",
-      impact: "visualizing spend patterns",
+      title: "cognitive assessment system",
+      desc: "state-based game with timing tests, modular architecture separating UI, control flow, and core logic",
+      tech: "c/c++, javascript, html/css",
+      impact: "reaction time testing",
       year: "2025"
     }
   ];
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-mono overflow-x-hidden">
+    <div className="relative min-h-screen bg-black text-white font-mono overflow-x-hidden" style={{ cursor: 'none' }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none opacity-40" />
       
       {/* Custom cursor */}
@@ -511,7 +536,6 @@ export default function Portfolio() {
       />
 
       <div className="relative z-10">
-        {/* Nav */}
         <nav className="fixed top-0 w-full px-8 py-6 flex justify-between items-center backdrop-blur-sm">
           <div className="text-sm">
             <span className="text-violet-500">&gt;</span> aditya_sharma
@@ -523,7 +547,6 @@ export default function Portfolio() {
           </div>
         </nav>
 
-        {/* Hero */}
         <section className="min-h-screen flex items-center justify-center px-8">
           <div className="max-w-5xl w-full">
             <div className="mb-12">
@@ -553,24 +576,21 @@ export default function Portfolio() {
             </div>
 
             <p className="text-xl text-gray-400 mb-8 max-w-2xl">
-              comp eng @ waterloo. firmware dev on formula electric. building AI-powered tools 
-              and data pipelines. looking for summer 2025 internships.
+              comp eng @ waterloo. firmware dev on formula electric working on embedded systems. 
+              building AI-powered tools, data pipelines, and cognitive systems. looking for summer 2025 internships.
             </p>
 
             <div className="flex gap-4 text-sm">
               <a 
                 href="#work"
                 className="px-6 py-3 bg-violet-600 hover:bg-violet-500 transition-colors inline-flex items-center gap-2"
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
               >
                 see my work <ArrowRight className="w-4 h-4" />
               </a>
               <a 
-                href="/resume.pdf"
+                href="/Aditya_Sharma_Resume.pdf"
+                download
                 className="px-6 py-3 border border-zinc-700 hover:border-violet-500 transition-colors"
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
               >
                 resume
               </a>
@@ -578,24 +598,19 @@ export default function Portfolio() {
           </div>
         </section>
 
-        {/* Work */}
         <section id="work" className="min-h-screen py-24 px-8">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
               <span className="text-violet-500">02.</span> selected work
             </h2>
-            <p className="text-gray-500 mb-8 text-sm">
+            <p className="text-gray-400 mb-8 text-lg">
               use arrow keys or on-screen controls to play • collect all projects!
             </p>
 
-            <ProjectGameView 
-              projects={projects} 
-              onHoverChange={setIsHovering}
-            />
+            <ProjectGameView projects={projects} />
           </div>
         </section>
 
-        {/* About */}
         <section id="about" className="min-h-screen py-24 px-8">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold mb-12">
@@ -605,21 +620,21 @@ export default function Portfolio() {
             <div className="space-y-6 text-lg text-gray-400 leading-relaxed">
               <p>
                 hey! i'm aditya, a first-year computer engineering student at waterloo. 
-                started coding in high school, now i'm working on formula electric's firmware team.
+                currently on the firmware team for formula electric, working on embedded systems and autonomous vehicle firmware.
               </p>
               <p>
-                i love building stuff that solves real problems - from chess AIs that analyze your games 
-                to data pipelines that automate boring tasks. comfortable with python, C/C++, and the full stack.
+                i love building stuff that solves real problems - from chess AIs to data pipelines to cognitive assessment systems. 
+                comfortable with python, C/C++, and full stack development. experienced with tensorflow, sql, and building production-ready APIs.
               </p>
               <p>
-                when i'm not coding, you'll find me at hackathons (got a special mention at UN Hackathon), 
-                working on autonomous systems, or exploring new ML frameworks.
+                when i'm not coding, you'll find me at hackathons (special mention at UN Hackathon, healthcare hackathon prototypes), 
+                working on firmware for autonomous systems, or exploring new ML frameworks and embedded systems.
               </p>
               
               <div className="pt-8">
                 <h3 className="text-xl font-bold mb-4 text-white">current stack:</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  {['python', 'c/c++', 'javascript/typescript', 'tensorflow', 'sql/mysql', 'git/github', 'html/css', 'react'].map((skill, i) => (
+                  {['python', 'c/c++', 'javascript/typescript', 'tensorflow', 'sql/mysql', 'git/github', 'linux', 'bash'].map((skill, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <span className="text-violet-500">▹</span>
                       <span>{skill}</span>
@@ -631,7 +646,6 @@ export default function Portfolio() {
           </div>
         </section>
 
-        {/* Contact */}
         <section className="py-24 px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
@@ -643,15 +657,12 @@ export default function Portfolio() {
             <a 
               href="mailto:aditya.shm64@gmail.com"
               className="inline-block px-8 py-4 border-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-black transition-all font-bold text-lg"
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
             >
               aditya.shm64@gmail.com
             </a>
           </div>
         </section>
 
-        {/* Footer */}
         <footer className="py-8 px-8 text-center text-gray-600 text-sm border-t border-zinc-900">
           <p>designed & built by aditya sharma © 2025</p>
         </footer>
