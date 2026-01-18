@@ -332,7 +332,7 @@ export default function Portfolio() {
           <div className="max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold mb-12"><span className="text-violet-500">03.</span> about me</h2>
             <div className="space-y-6 text-lg text-gray-400">
-              <p>first-year CE @ waterloo. firmware team for formula electric. building chess AIs, data pipelines, cognitive systems.</p>
+              <p>hey! i'm aditya, a first-year computer engineering student at waterloo. currently on the firmware team for formula electric, working on embedded systems and autonomous vehicle firmware..</p>
               <p>comfortable with python, C/C++, tensorflow, sql. UN hackathon mention, healthcare prototypes.</p>
               <div className="pt-8">
                 <h3 className="text-xl font-bold mb-4 text-white">stack:</h3>
