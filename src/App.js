@@ -32,7 +32,7 @@ export default function Portfolio() {
 
   useEffect(() => {
     let i = 0;
-    const text = "const aditya = { role: 'computer eng @ waterloo', status: 'seeking s25 coop' };";
+    const text = "const aditya = { role: 'computer eng @ waterloo', status: 'seeking s26 coop' };";
     const timer = setInterval(() => {
       if (i <= text.length) {
         setTerminalText(text.slice(0, i));
@@ -282,7 +282,7 @@ export default function Portfolio() {
               </div>
             </div>
             <p className="text-xl text-gray-400 mb-8">
-              comp eng @ waterloo. firmware dev on formula electric. building AI tools, data pipelines. seeking summer 2025 internships.
+              comp eng @ waterloo. firmware dev on formula electric. building AI tools, data pipelines. seeking summer 2026 internships.
             </p>
             <div className="flex gap-4 text-sm">
               <a href="#work" className="px-6 py-3 bg-violet-600 hover:bg-violet-500 inline-flex items-center gap-2">
@@ -349,7 +349,7 @@ export default function Portfolio() {
         <section className="py-24 px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl font-bold mb-8">let's build something</h2>
-            <p className="text-xl text-gray-400 mb-12">summer 2025 internships - software/firmware/AI</p>
+            <p className="text-xl text-gray-400 mb-12">summer 2026 internships - software/firmware/AI</p>
             <a href="mailto:aditya.shm64@gmail.com" className="inline-block px-8 py-4 border-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-black font-bold text-lg">
               aditya.shm64@gmail.com
             </a>
@@ -357,7 +357,7 @@ export default function Portfolio() {
         </section>
 
         <footer className="py-8 text-center text-gray-600 text-sm border-t border-zinc-900">
-          <p>designed & built by aditya sharma © 2025</p>
+          <p>designed & built by aditya sharma © 2026</p>
         </footer>
       </div>
 
