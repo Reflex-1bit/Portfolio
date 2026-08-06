@@ -1,0 +1,152 @@
+.relay {
+  position: absolute;
+  z-index: 2;
+  left: clamp(0.5rem, 2vw, 1.25rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.relay__label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  color: rgba(0, 232, 255, 0.55);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.relay__chain {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.relay__node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.relay__arc {
+  display: block;
+  width: 3px;
+  height: 14px;
+  margin: 1px 0;
+  background: linear-gradient(180deg, rgba(0, 232, 255, 0.15), rgba(0, 232, 255, 0.35));
+  box-shadow: 0 0 6px rgba(0, 232, 255, 0.2);
+  transition: background 0.3s, box-shadow 0.3s, height 0.3s;
+}
+
+.relay__arc--lit {
+  background: linear-gradient(180deg, rgba(0, 232, 255, 0.4), rgba(0, 232, 255, 0.75));
+  box-shadow: 0 0 10px rgba(0, 232, 255, 0.45);
+}
+
+.relay__arc--zap {
+  animation: arcZap 0.45s ease-out;
+}
+
+@keyframes arcZap {
+  0% {
+    height: 6px;
+    background: #fff;
+    box-shadow: 0 0 20px #00e8ff, 0 0 40px #00e8ff;
+  }
+  40% {
+    height: 22px;
+    background: linear-gradient(180deg, #fff, #00e8ff);
+  }
+  100% {
+    height: 14px;
+    background: linear-gradient(180deg, rgba(0, 232, 255, 0.4), rgba(0, 232, 255, 0.75));
+    box-shadow: 0 0 10px rgba(0, 232, 255, 0.45);
+  }
+}
+
+.relay__hex {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: rgba(0, 20, 30, 0.75);
+  border: 1px solid rgba(0, 232, 255, 0.2);
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+
+.relay__hex-core {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.relay__node--past .relay__hex {
+  border-color: rgba(0, 232, 255, 0.45);
+  background: rgba(0, 40, 55, 0.65);
+}
+
+.relay__node--past .relay__hex-core {
+  color: rgba(0, 232, 255, 0.7);
+}
+
+.relay__node--active .relay__hex {
+  transform: scale(1.15);
+  border-color: #00e8ff;
+  background: rgba(0, 60, 80, 0.85);
+  box-shadow:
+    0 0 20px rgba(0, 232, 255, 0.55),
+    inset 0 0 12px rgba(0, 232, 255, 0.15);
+}
+
+.relay__node--active .relay__hex-core {
+  color: #fff;
+  text-shadow: 0 0 8px #00e8ff;
+}
+
+.relay__pulse {
+  position: absolute;
+  inset: -6px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  border: 1px solid rgba(0, 232, 255, 0.5);
+  animation: relayPulse 1.4s ease-out infinite;
+}
+
+@keyframes relayPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.relay__hint {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.3);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+@media (max-width: 720px) {
+  .relay {
+    display: none;
+  }
+}

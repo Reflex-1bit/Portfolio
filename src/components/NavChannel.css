@@ -1,0 +1,87 @@
+.nav-channel {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  margin-bottom: 0.15rem;
+  pointer-events: none;
+}
+
+.nav-channel__track {
+  position: relative;
+  height: 3px;
+  background: rgba(0, 232, 255, 0.12);
+  border-radius: 2px;
+  overflow: visible;
+  box-shadow: 0 0 12px rgba(0, 232, 255, 0.08);
+}
+
+.nav-channel__fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0, 232, 255, 0.35), #00e8ff);
+  box-shadow: 0 0 16px rgba(0, 232, 255, 0.55);
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-channel__bolt {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  background: #fff;
+  clip-path: polygon(50% 0%, 65% 38%, 100% 50%, 65% 62%, 50% 100%, 35% 62%, 0% 50%, 35% 38%);
+  box-shadow: 0 0 14px #00e8ff, 0 0 28px rgba(0, 232, 255, 0.6);
+  transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-channel--zap .nav-channel__bolt {
+  animation: boltPop 0.45s ease-out;
+}
+
+@keyframes boltPop {
+  0% {
+    transform: scale(2.2);
+    filter: brightness(2);
+  }
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+.nav-channel__nodes {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.45rem;
+  padding: 0 1px;
+}
+
+.nav-channel__node {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.nav-channel__node--past {
+  background: rgba(0, 232, 255, 0.45);
+}
+
+.nav-channel__node--on {
+  transform: scale(1.6);
+  background: #00e8ff;
+  box-shadow: 0 0 10px rgba(0, 232, 255, 0.8);
+}
+
+.nav-channel--zap .nav-channel__fill {
+  filter: brightness(1.6);
+}
+
+@media (max-width: 640px) {
+  .nav-channel {
+    top: 0.65rem;
+    width: min(480px, 92vw);
+  }
+}
+

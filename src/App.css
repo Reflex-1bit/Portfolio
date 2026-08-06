@@ -1,0 +1,11 @@
+.app {
+  min-height: 100vh;
+  background: #000;
+}
+
+.app:has(.boot),
+.app:has(.main-grid) {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}

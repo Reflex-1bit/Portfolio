@@ -1,0 +1,360 @@
+.boot {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
+}
+
+.boot__street {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transform-origin: 50% 52%;
+}
+
+.boot__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Static grade only — never animate filters */
+  filter: saturate(0.55) contrast(1.15) brightness(0.55);
+  transform: translateZ(0) scale(1.04);
+}
+
+.boot__street-grade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(100, 180, 255, 0.14) 0%, transparent 32%),
+    radial-gradient(ellipse 70% 55% at 50% 40%, transparent 20%, rgba(0, 0, 0, 0.65) 75%),
+    linear-gradient(180deg, rgba(0, 30, 40, 0.35), rgba(0, 0, 0, 0.75));
+  pointer-events: none;
+}
+
+.boot__hud {
+  position: absolute;
+  z-index: 4;
+  top: 1.25rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--cyan);
+  text-shadow: 0 0 12px var(--cyan-glow);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.boot__sys,
+.boot__loc {
+  margin: 0;
+}
+
+.boot__phone-stage {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: 6%;
+  width: min(420px, 78vw);
+  transform: translate3d(-50%, 0, 0);
+  /* Camera aims at phone screen center */
+  transform-origin: 48% 30%;
+  animation: phoneFloat 4.5s ease-in-out infinite;
+  backface-visibility: hidden;
+}
+
+@keyframes phoneFloat {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  50% {
+    transform: translate3d(-50%, -10px, 0);
+  }
+}
+
+.boot__phone {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  transform: translateZ(0);
+}
+
+/* Invisible measure target = phone glass (matches visible screen area) */
+.boot__screen-portal {
+  position: absolute;
+  left: 31%;
+  top: 13%;
+  width: 38%;
+  height: 34%;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.boot--suck .boot__screen-portal {
+  /* Brighten glass so the portal read is clear before tunnel takes over */
+  background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.25), transparent 70%);
+  box-shadow: 0 0 24px rgba(0, 232, 255, 0.4);
+}
+
+.boot__screen-glow {
+  position: absolute;
+  left: 32%;
+  top: 14%;
+  width: 36%;
+  height: 32%;
+  border-radius: 4px;
+  background: radial-gradient(ellipse at center, rgba(0, 220, 255, 0.35), transparent 70%);
+  pointer-events: none;
+  animation: screenPulse 1.8s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes screenPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.boot__worm-tag {
+  position: absolute;
+  z-index: 22;
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  color: #00e8ff;
+  text-shadow: 0 0 18px rgba(0, 232, 255, 0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.boot__worm-tag--on {
+  opacity: 1;
+  transition-delay: 0.55s;
+}
+
+.boot__hack-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  width: min(280px, 72%);
+  transform: translateX(-50%);
+  padding: 0.85rem 1rem;
+  background: rgba(0, 8, 12, 0.78);
+  border: 1px solid rgba(0, 217, 217, 0.45);
+  /* backdrop-filter is expensive — keep static while idle only */
+  backdrop-filter: blur(8px);
+  font-family: var(--font-mono);
+  box-shadow: 0 0 28px rgba(0, 217, 217, 0.18);
+  transition: opacity 0.2s ease;
+}
+
+.boot__hack-title {
+  margin: 0 0 0.45rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan-bright);
+}
+
+.boot__hack-line {
+  margin: 0 0 0.65rem;
+  min-height: 1.2em;
+  font-size: 0.68rem;
+  color: var(--muted);
+  animation: lineIn 0.25s ease;
+}
+
+@keyframes lineIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.boot__bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.boot__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan-dim), var(--cyan-bright));
+  box-shadow: 0 0 12px var(--cyan-glow);
+  transition: width 0.08s linear;
+}
+
+.boot__pct {
+  margin: 0.4rem 0 0.75rem;
+  font-size: 0.65rem;
+  color: var(--cyan);
+  letter-spacing: 0.12em;
+}
+
+.boot__cta {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.boot__cta:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.boot__cta--ready {
+  color: #000;
+  background: var(--cyan);
+  border-color: var(--cyan);
+  box-shadow: 0 0 22px var(--cyan-glow);
+  animation: ctaPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ctaPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 16px var(--cyan-glow);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(0, 255, 255, 0.65);
+  }
+}
+
+.boot__prompts {
+  position: absolute;
+  z-index: 4;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* —— Single suck sequence: transform + opacity only —— */
+.boot--suck .boot__hud,
+.boot--suck .boot__prompts,
+.boot--suck .boot__hack-panel {
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
+.boot--suck .boot__hack-panel {
+  backdrop-filter: none;
+}
+
+.boot--suck .boot__phone-stage {
+  animation: phoneDive 2.2s cubic-bezier(0.4, 0, 0.15, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes phoneDive {
+  0% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+    opacity: 1;
+  }
+  45% {
+    transform: translate3d(-50%, 18%, 0) scale(5.5);
+    opacity: 1;
+  }
+  75% {
+    transform: translate3d(-50%, 22%, 0) scale(11);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(-50%, 24%, 0) scale(18);
+    opacity: 0;
+  }
+}
+
+.boot--suck .boot__street {
+  animation: streetOut 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: 50% 48%;
+}
+
+@keyframes streetOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1.35);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.boot--suck .boot__screen-glow {
+  animation: portalBloom 0.6s ease-out forwards;
+}
+
+@keyframes portalBloom {
+  to {
+    opacity: 1;
+    background: radial-gradient(ellipse at center, rgba(180, 255, 255, 0.9), rgba(0, 200, 255, 0.35) 45%, transparent 70%);
+    transform: scale(1.15);
+  }
+}
+
+@media (max-width: 640px) {
+  .boot__phone-stage {
+    width: min(360px, 88vw);
+    bottom: 10%;
+  }
+
+  @keyframes phoneDive {
+    0% {
+      transform: translate3d(-50%, 0, 0) scale(1);
+      opacity: 1;
+    }
+    45% {
+      transform: translate3d(-50%, 14%, 0) scale(4.2);
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(-50%, 18%, 0) scale(14);
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot--suck .boot__phone-stage,
+  .boot--suck .boot__street {
+    animation-duration: 0.01ms !important;
+  }
+}

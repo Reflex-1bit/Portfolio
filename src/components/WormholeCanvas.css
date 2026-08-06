@@ -1,0 +1,8 @@
+.wormhole-canvas {
+  position: fixed;
+  inset: 0;
+  /* Above phone: draws only inside screen ellipse; bezel shows through clear pixels */
+  z-index: 10;
+  pointer-events: none;
+  transform: translateZ(0);
+}
